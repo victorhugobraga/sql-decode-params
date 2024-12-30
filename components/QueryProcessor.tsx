@@ -16,7 +16,7 @@ export default function QueryProcessor() {
   //   result: "",
   //   error: "",
   // });
-  const [query, setQuery] = useState("");
+  // const [query, setQuery] = useState("");
   const [params, setParams] = useState("");
 
   return (
