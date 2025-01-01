@@ -2,10 +2,7 @@
 
 import { processQuery } from "@/utils/processQuery";
 
-export async function processQueryAction(formData: FormData) {
-  const query = formData.get("query") as string;
-  const params = (formData.get("params") as string).split(" ").filter(Boolean);
-
+export async function processQueryAction(query: string, params: string[]) {
   if (!query) {
     return { error: "Query is required" };
   }
