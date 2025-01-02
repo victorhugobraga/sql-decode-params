@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "QueryMate",
-  description: "QueryMate",
+  title: "SankhyaQL",
+  description: "SankhyaQL",
 };
 
 export default function RootLayout({

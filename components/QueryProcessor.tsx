@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Editor } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
+import { format } from "sql-formatter";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
 
 export default function QueryProcessor() {
   // const [state, formAction] = useFormState(processQueryAction, {
@@ -19,8 +22,8 @@ export default function QueryProcessor() {
   // });
   const [query, setQuery] = useState("");
   const [params, setParams] = useState("");
-  const [showParams, setShowParams] = useState(true);
   const [result, setResult] = useState("");
+  const [formatMode, setFormatMode] = useState(true);
 
   const processQuery = async () => {
     if (!query) {
@@ -33,21 +36,21 @@ export default function QueryProcessor() {
       .map((param) => param.split(" = ")[1])
       .filter((item) => item);
 
-    console.log(paramsArr);
     const queryProcessed = await processQueryAction(query, paramsArr);
-    console.log(queryProcessed);
-    if (queryProcessed.result) setResult(queryProcessed.result);
+    const queryFormatted =
+      formatMode && queryProcessed.result
+        ? format(queryProcessed.result, { language: "sql" })
+        : queryProcessed.result;
+
+    if (queryFormatted) setResult(queryFormatted);
   };
 
   useEffect(() => {
     const isQueryIncludesParams = query.toLowerCase().includes("params:");
-    setShowParams(!isQueryIncludesParams);
-
     if (isQueryIncludesParams) {
       const newParams = query.split("params:")[1];
 
       if (params != newParams) setParams(newParams);
-      console.log(newParams);
     }
   }, [query]);
 
@@ -75,36 +78,27 @@ export default function QueryProcessor() {
                 className="mt-1 border border-gray-300 py-4 overflow-hidden rounded-lg"
               />
             </div>
-            {showParams && (
-              <div>
-                <label
-                  htmlFor="params"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Parâmetros (separados por linhas)
-                </label>
-                <textarea
-                  id="params"
-                  name="params"
-                  value={params}
-                  onChange={(e) => setParams(e.target.value)}
-                  placeholder="index: valor"
-                  rows={5}
-                  className="mt-1 border border-gray-300 rounded-lg shadow-sm block w-full sm:text-sm p-2"
-                />
-              </div>
-            )}
           </div>
-          <Button type="button" onClick={processQuery} className="mt-4">
-            Processar Query
-          </Button>
+          <div className="flex items-center gap-2 mt-4">
+            <Button type="button" onClick={processQuery}>
+              Processar Query
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="format-mode"
+                checked={formatMode}
+                onCheckedChange={(value) => setFormatMode(value)}
+              />
+              <Label htmlFor="format-mode">Formatar</Label>
+            </div>
+          </div>
         </form>
       </CardContent>
       <CardFooter>
         {/* {state.error && <div className="text-red-500 mt-2">{state.error}</div>} */}
         {result && (
           <div className="mt-4 w-full">
-            <h2 className="text-lg font-semibold">Processed Query:</h2>
+            <h2 className="text-lg font-semibold">Processada Query:</h2>
             <Editor
               theme="vs-light"
               height="30vh"

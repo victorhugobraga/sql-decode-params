@@ -11,7 +11,7 @@ export async function processQueryAction(query: string, params: string[]) {
     const processedQuery = processQuery(query, params);
     return { result: processedQuery };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { error: "Error processing query" };
   }
 }
