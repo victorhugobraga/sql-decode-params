@@ -48,7 +48,7 @@ export default function QueryProcessor() {
   useEffect(() => {
     const isQueryIncludesParams = query.toLowerCase().includes("params:");
     if (isQueryIncludesParams) {
-      const newParams = query.split("params:")[1];
+      const newParams = query.toLowerCase().split("params:")[1];
 
       if (params != newParams) setParams(newParams);
     }

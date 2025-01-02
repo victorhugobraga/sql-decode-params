@@ -9,8 +9,7 @@ export function processQuery(query: string, params: string[]): string {
 
     if (!isNaN(Number(param))) return param;
     if (param.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      console.log("date");
-      const [year, month, day] = param.split("-");
+      const [year, month, day] = param.split("\n")[0].split("-");
       return `'${day}/${month}/${year}'`;
     }
     if (!param.startsWith("'")) return `'${param}'`;
