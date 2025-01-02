@@ -39,7 +39,10 @@ export default function QueryProcessor() {
     const queryProcessed = await processQueryAction(query, paramsArr);
     const queryFormatted =
       formatMode && queryProcessed.result
-        ? format(queryProcessed.result, { language: "sql" })
+        ? format(queryProcessed.result, {
+            language: "sql",
+            keywordCase: "upper",
+          })
         : queryProcessed.result;
 
     if (queryFormatted) setResult(queryFormatted);
