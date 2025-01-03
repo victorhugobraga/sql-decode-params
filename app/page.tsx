@@ -1,4 +1,5 @@
 import QueryProcessor from "@/components/QueryProcessor";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
         SankhyaQL
       </h1>
       <QueryProcessor />
+      <Toaster richColors position="top-right" />
     </main>
   );
 }
