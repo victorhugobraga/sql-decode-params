@@ -9,11 +9,8 @@ export function processQuery(query: string, params: string[]): string {
     paramIndex++;
 
     if (!isNaN(Number(param))) return param;
-    if (param.match(/^\d{4}-\d{2}-\d{2}[\n\r]?$/)) {
-      const [year, month, day] = param
-        .replaceAll("\r", "\n")
-        .split("\n")[0]
-        .split("-");
+    if (param.match(/^\d{4}-\d{2}-\d{2}$/) || param.includes("\n")) {
+      const [year, month, day] = param.split("\n")[0].split("-");
       return `'${day}/${month}/${year}'`;
     }
     if (!param.startsWith("'")) return `'${param}'`;
