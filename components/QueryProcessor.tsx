@@ -10,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Editor } from "@monaco-editor/react";
-import { Clipboard, Search } from "lucide-react";
+import { Clipboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { format } from "sql-formatter";
+import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -26,17 +27,20 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { Tabs, TabsContent } from "./ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+
+type ParamList = {
+  col: string;
+  param: string;
+};
 
 export default function QueryProcessor() {
-  // const [state, formAction] = useFormState(processQueryAction, {
-  //   result: "",
-  //   error: "",
-  // });
   const [query, setQuery] = useState("");
   const [params, setParams] = useState("");
+  const [paramsList, setParamsList] = useState<ParamList[]>();
   const [result, setResult] = useState("");
   const [formatMode, setFormatMode] = useState(true);
+  const [paramSearch, setParamSearch] = useState("");
 
   const processQuery = async () => {
     if (!query) {
@@ -59,7 +63,9 @@ export default function QueryProcessor() {
       return;
     }
 
-    console.log("queryProcessed", paramsQuery);
+    if (queryProcessed.params) {
+      setParamsList(queryProcessed.params);
+    }
 
     const queryFormatted =
       formatMode && queryProcessed.result
@@ -127,10 +133,10 @@ export default function QueryProcessor() {
         {result && (
           <div className="mt-4 w-full">
             <Tabs defaultValue="result" className="">
-              {/* <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="result">Resultado</TabsTrigger>
                 <TabsTrigger value="params">Parâmetros</TabsTrigger>
-              </TabsList> */}
+              </TabsList>
               <TabsContent value="result">
                 <Editor
                   theme="vs-light"
@@ -159,14 +165,17 @@ export default function QueryProcessor() {
                   <CardHeader>
                     <CardTitle>Parâmetros informados</CardTitle>
                     <div className="flex gap-2">
-                      <Input placeholder="Digite um parâmetro..." />
-                      <Button type="button" variant={"outline"}>
-                        <Search /> Pesquisar
-                      </Button>
+                      <Input
+                        placeholder="Digite um parâmetro..."
+                        value={paramSearch}
+                        onChange={(value) =>
+                          setParamSearch(value.currentTarget.value)
+                        }
+                      />
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2 flex justify-center items-center">
-                    <Table className="w-full max-w-[400px] mx-auto border rounded-lg shadow overflow-hidden">
+                    <Table className="">
                       <TableCaption>
                         Lista de parâmetros informados
                       </TableCaption>
@@ -178,16 +187,30 @@ export default function QueryProcessor() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow>
-                          <TableCell>1</TableCell>
-                          <TableCell className="font-bold">NUNOTA</TableCell>
-                          <TableCell>57</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>1</TableCell>
-                          <TableCell className="font-bold">NUNOTA</TableCell>
-                          <TableCell>57</TableCell>
-                        </TableRow>
+                        {paramsList?.map(
+                          (param, index) =>
+                            (!paramSearch.length ||
+                              param.col.includes(paramSearch)) && (
+                              <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell className="font-bold">
+                                  {param.col.toUpperCase()}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={"secondary"}
+                                    className={
+                                      !isNaN(Number(param.param))
+                                        ? "text-green-600"
+                                        : "text-orange-600"
+                                    }
+                                  >
+                                    {param.param}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            )
+                        )}
                       </TableBody>
                     </Table>
                   </CardContent>
