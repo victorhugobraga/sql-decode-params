@@ -66,6 +66,9 @@ export default function QueryProcessor() {
         ? format(queryProcessed.result, {
             language: "sql",
             keywordCase: "upper",
+            dataTypeCase: "upper",
+            functionCase: "upper",
+            identifierCase: "upper",
           })
         : queryProcessed.result;
 
