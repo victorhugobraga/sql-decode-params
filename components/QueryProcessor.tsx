@@ -44,7 +44,7 @@ export default function QueryProcessor() {
       return;
     }
 
-    const paramsArr = params.split("\n");
+    const paramsArr = params.replaceAll("\r", "").split("\n");
     paramsArr.shift();
     const paramsQuery = paramsArr.map((param) => param.split(" = ")[1]);
     const queryProcessed = await processQueryAction(query, paramsQuery);

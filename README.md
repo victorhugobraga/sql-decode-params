@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SQL Query Builder & Interpreter
 
-## Getting Started
+Este projeto automatiza o trabalho com queries SQL parametrizadas, facilitando o entendimento e o processo de análise.
 
-First, run the development server:
+## Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Montagem Automática:** Combina parâmetros separados em uma query SQL completa.
+- **Exibição de Parâmetros:** Mostra os nomes e valores dos parâmetros preenchidos.
+- **Interpretação:** Traduz a query para uma linguagem simples e explicativa.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Objetivo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Simplificar a criação, visualização e interpretação de queries SQL, ajudando desenvolvedores a trabalharem de forma mais eficiente.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Como Usar
 
-## Learn More
+1. Insira uma query SQL com parâmetros e os respectivos valores.
+   > SELECT \* FROM tabela WHERE coluna = ?
+   > Params:
+   > 1 = valor
+2. O sistema combina automaticamente os parâmetros na query e a formata.
+   > SELECT \*
+   > FROM tabela
+   > WHERE coluna = 'valor'
+3. Visualize os parâmetros preenchidos e suas explicações.
+   > coluna | 'valor'
+4. Receba uma interpretação clara do que a query faz.
+   > "Selecione todos os registros da tabela onde a coluna é igual a 'valor'."
 
-To learn more about Next.js, take a look at the following resources:
+## Tecnologias Utilizadas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- TypeScript
+- Next.js, Shadcn, Tailwind CSS
