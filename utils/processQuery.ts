@@ -1,5 +1,4 @@
 export function processQuery(query: string, params: string[]): string {
-  console.log(query.toLowerCase());
   let processedQuery = query.toLowerCase().split("params:")[0];
   let paramIndex = 0;
 
