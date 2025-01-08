@@ -17,6 +17,7 @@ import { format } from "sql-formatter";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Skeleton } from "./ui/skeleton";
 import { Switch } from "./ui/switch";
 import {
   Table,
@@ -41,6 +42,7 @@ export default function QueryProcessor() {
   const [result, setResult] = useState("");
   const [formatMode, setFormatMode] = useState(true);
   const [paramSearch, setParamSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const processQuery = async () => {
     if (!query) {
@@ -48,43 +50,56 @@ export default function QueryProcessor() {
       return;
     }
 
-    const paramsArr = params.replaceAll("\r", "").split("\n");
-    paramsArr.shift();
-    const paramsQuery = paramsArr.map((param) => param.split(" = ")[1]);
-    const queryProcessed = await processQueryAction(query, paramsQuery);
-
-    if (queryProcessed.error) {
-      toast.error(queryProcessed.error);
+    if (!query.includes("Params:")) {
+      toast.warning(
+        "Nenhum parâmetro informado! Adicione 'Params:' na query para informar os parâmetros."
+      );
       return;
     }
 
-    if (!queryProcessed.result) {
-      toast.warning("Nenhuma query processada!");
-      return;
+    try {
+      setLoading(true);
+
+      const paramsArr = params.replaceAll("\r", "").split("\n");
+      paramsArr.shift();
+      const paramsQuery = paramsArr.map((param) => param.split(" = ")[1]);
+      const queryProcessed = await processQueryAction(query, paramsQuery);
+
+      if (queryProcessed.error) {
+        toast.error(queryProcessed.error);
+        return;
+      }
+
+      if (!queryProcessed.result) {
+        toast.warning("Nenhuma query processada!");
+        return;
+      }
+
+      if (queryProcessed.params) {
+        setParamsList(queryProcessed.params);
+      }
+
+      const queryFormatted =
+        formatMode && queryProcessed.result
+          ? format(queryProcessed.result, {
+              language: "sql",
+              keywordCase: "upper",
+              dataTypeCase: "upper",
+              functionCase: "upper",
+              identifierCase: "upper",
+            })
+          : queryProcessed.result;
+
+      if (queryFormatted) setResult(queryFormatted);
+    } finally {
+      setLoading(false);
     }
-
-    if (queryProcessed.params) {
-      setParamsList(queryProcessed.params);
-    }
-
-    const queryFormatted =
-      formatMode && queryProcessed.result
-        ? format(queryProcessed.result, {
-            language: "sql",
-            keywordCase: "upper",
-            dataTypeCase: "upper",
-            functionCase: "upper",
-            identifierCase: "upper",
-          })
-        : queryProcessed.result;
-
-    if (queryFormatted) setResult(queryFormatted);
   };
 
   useEffect(() => {
-    const isQueryIncludesParams = query.toLowerCase().includes("params:");
+    const isQueryIncludesParams = query.includes("Params:");
     if (isQueryIncludesParams) {
-      const newParams = query.toLowerCase().split("params:")[1];
+      const newParams = query.split("Params:")[1];
       if (params != newParams) setParams(newParams);
     }
   }, [query]);
@@ -106,7 +121,7 @@ export default function QueryProcessor() {
               </label>
               <Editor
                 theme="vs-light"
-                height="30vh"
+                height="25vh"
                 value={query}
                 onChange={(value) => setQuery(value ?? "")}
                 defaultLanguage="sql"
@@ -130,94 +145,103 @@ export default function QueryProcessor() {
         </form>
       </CardContent>
       <CardFooter>
-        {result && (
-          <div className="mt-4 w-full">
-            <Tabs defaultValue="result" className="">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="result">Resultado</TabsTrigger>
-                <TabsTrigger value="params">Parâmetros</TabsTrigger>
-              </TabsList>
-              <TabsContent value="result">
-                <Editor
-                  theme="vs-light"
-                  height="30vh"
-                  value={result}
-                  onChange={() => setResult(result)}
-                  defaultLanguage="sql"
-                  className="mt-1 border border-gray-300 py-4 overflow-hidden rounded-lg"
-                />
-                <Button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(result);
-                    toast.success(
-                      "Resultado copiado para a área de transferência!"
-                    );
-                  }}
-                  className="mt-2"
-                  variant={"outline"}
-                >
-                  <Clipboard /> Copiar resultado
-                </Button>
-              </TabsContent>
-              <TabsContent value="params">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Parâmetros informados</CardTitle>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Digite um parâmetro..."
-                        value={paramSearch}
-                        onChange={(value) =>
-                          setParamSearch(value.currentTarget.value)
-                        }
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2 flex justify-center items-center">
-                    <Table className="">
-                      <TableCaption>
-                        Lista de parâmetros informados
-                      </TableCaption>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Index</TableHead>
-                          <TableHead>Parâmetro</TableHead>
-                          <TableHead>Valor</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {paramsList?.map(
-                          (param, index) =>
-                            (!paramSearch.length ||
-                              param.col.includes(paramSearch)) && (
-                              <TableRow key={index}>
-                                <TableCell>{index + 1}</TableCell>
-                                <TableCell className="font-bold">
-                                  {param.col.toUpperCase()}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge
-                                    variant={"secondary"}
-                                    className={
-                                      !isNaN(Number(param.param))
-                                        ? "text-green-600"
-                                        : "text-orange-600"
-                                    }
-                                  >
-                                    {param.param}
-                                  </Badge>
-                                </TableCell>
-                              </TableRow>
-                            )
-                        )}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+        {loading ? (
+          <div className="flex flex-col space-y-3 w-full">
+            <Skeleton className="h-[30vh] w-full rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-[200px]" />
+            </div>
           </div>
+        ) : (
+          result && (
+            <div className="mt-4 w-full">
+              <Tabs defaultValue="result" className="">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="result">Resultado</TabsTrigger>
+                  <TabsTrigger value="params">Parâmetros</TabsTrigger>
+                </TabsList>
+                <TabsContent value="result">
+                  <Editor
+                    theme="vs-light"
+                    height="30vh"
+                    value={result}
+                    onChange={() => setResult(result)}
+                    defaultLanguage="sql"
+                    className="mt-1 border border-gray-300 py-4 overflow-hidden rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(result);
+                      toast.success(
+                        "Resultado copiado para a área de transferência!"
+                      );
+                    }}
+                    className="mt-2"
+                    variant={"outline"}
+                  >
+                    <Clipboard /> Copiar resultado
+                  </Button>
+                </TabsContent>
+                <TabsContent value="params">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Parâmetros informados</CardTitle>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Digite um parâmetro..."
+                          value={paramSearch}
+                          onChange={(value) =>
+                            setParamSearch(value.currentTarget.value)
+                          }
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2 flex justify-center items-center">
+                      <Table className="">
+                        <TableCaption>
+                          Lista de parâmetros informados
+                        </TableCaption>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Index</TableHead>
+                            <TableHead>Parâmetro</TableHead>
+                            <TableHead>Valor</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paramsList?.map(
+                            (param, index) =>
+                              (!paramSearch.length ||
+                                param.col.includes(paramSearch)) && (
+                                <TableRow key={index}>
+                                  <TableCell>{index + 1}</TableCell>
+                                  <TableCell className="font-bold">
+                                    {param.col.toUpperCase()}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge
+                                      variant={"secondary"}
+                                      className={
+                                        !isNaN(Number(param.param))
+                                          ? "text-green-600"
+                                          : "text-orange-600"
+                                      }
+                                    >
+                                      {param.param}
+                                    </Badge>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )
         )}
       </CardFooter>
     </Card>
