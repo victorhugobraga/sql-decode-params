@@ -48,6 +48,13 @@ export default function QueryProcessor() {
       return;
     }
 
+    if (!query.includes("Params:")) {
+      toast.warning(
+        "Nenhum parâmetro informado! Adicione 'Params:' na query para informar os parâmetros."
+      );
+      return;
+    }
+
     const paramsArr = params.replaceAll("\r", "").split("\n");
     paramsArr.shift();
     const paramsQuery = paramsArr.map((param) => param.split(" = ")[1]);
@@ -82,9 +89,9 @@ export default function QueryProcessor() {
   };
 
   useEffect(() => {
-    const isQueryIncludesParams = query.toLowerCase().includes("params:");
+    const isQueryIncludesParams = query.includes("Params:");
     if (isQueryIncludesParams) {
-      const newParams = query.toLowerCase().split("params:")[1];
+      const newParams = query.split("Params:")[1];
       if (params != newParams) setParams(newParams);
     }
   }, [query]);
