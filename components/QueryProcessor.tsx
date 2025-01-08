@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Editor } from "@monaco-editor/react";
+import { sendGAEvent } from "@next/third-parties/google";
 import { Clipboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -45,6 +46,8 @@ export default function QueryProcessor() {
   const [loading, setLoading] = useState(false);
 
   const processQuery = async () => {
+    sendGAEvent("event", "processQuery", "Processando query");
+
     if (!query) {
       toast.warning("Nenhuma query informada!");
       return;
@@ -172,6 +175,7 @@ export default function QueryProcessor() {
                   <Button
                     type="button"
                     onClick={() => {
+                      sendGAEvent("event", "copyQuery", "Copiando query");
                       navigator.clipboard.writeText(result);
                       toast.success(
                         "Resultado copiado para a área de transferência!"
