@@ -113,7 +113,7 @@ export default function QueryProcessor() {
               </label>
               <Editor
                 theme="vs-light"
-                height="30vh"
+                height="25vh"
                 value={query}
                 onChange={(value) => setQuery(value ?? "")}
                 defaultLanguage="sql"
