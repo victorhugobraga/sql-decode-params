@@ -5,7 +5,7 @@ import { processQuery } from "@/utils/processQuery";
 
 export async function processQueryAction(query: string, params: string[]) {
   if (!query) {
-    return { error: "Query is required" };
+    return { error: "Nenhuma query informada!" };
   }
 
   try {

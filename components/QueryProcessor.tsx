@@ -53,24 +53,24 @@ export default function QueryProcessor() {
       return;
     }
 
-    if (!query.includes("Params:")) {
-      toast.warning(
-        "Nenhum parâmetro informado! Adicione 'Params:' na query para informar os parâmetros."
-      );
-      return;
-    }
-
     try {
       setLoading(true);
 
       const paramsArr = params.replaceAll("\r", "").split("\n");
       paramsArr.shift();
       const paramsQuery = paramsArr.map((param) => param.split(" = ")[1]);
+
+      console.log(paramsQuery);
+      if (query.includes("?") && !query.includes("Params:")) {
+        throw new Error(
+          "Nenhum parâmetro informado! Adicione 'Params:' na query para informar os parâmetros."
+        );
+      }
+
       const queryProcessed = await processQueryAction(query, paramsQuery);
 
       if (queryProcessed.error) {
-        toast.error(queryProcessed.error);
-        return;
+        throw new Error(queryProcessed.error);
       }
 
       if (!queryProcessed.result) {
@@ -89,11 +89,16 @@ export default function QueryProcessor() {
               keywordCase: "upper",
               dataTypeCase: "upper",
               functionCase: "upper",
-              identifierCase: "upper",
             })
           : queryProcessed.result;
 
       if (queryFormatted) setResult(queryFormatted);
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error("Erro ao processar query!");
+      }
     } finally {
       setLoading(false);
     }
@@ -105,6 +110,7 @@ export default function QueryProcessor() {
       const newParams = query.split("Params:")[1];
       if (params != newParams) setParams(newParams);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   return (

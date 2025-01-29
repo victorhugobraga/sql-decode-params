@@ -1,5 +1,5 @@
 export function processQuery(query: string, params: string[]): string {
-  let processedQuery = query.toLowerCase().split("params:")[0];
+  let processedQuery = query.split("Params:")[0];
   let paramIndex = 0;
 
   // Replace placeholders with parameters
