@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Editor } from "@monaco-editor/react";
 import { sendGAEvent } from "@next/third-parties/google";
-import { Clipboard } from "lucide-react";
+import { Clipboard, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { format } from "sql-formatter";
@@ -30,6 +30,8 @@ import {
   TableRow,
 } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { ScrollArea } from "./ui/scroll-area";
 
 type ParamList = {
   col: string;
@@ -116,7 +118,12 @@ export default function QueryProcessor() {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Processador SQL Query</CardTitle>
+        <CardTitle className="flex justify-between items-center">
+          <h1>Processador SQL Query</h1>
+          <Button variant={"outline"}>
+            <Plus /> Adicionar Log
+          </Button>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form>
@@ -165,9 +172,10 @@ export default function QueryProcessor() {
           result && (
             <div className="mt-4 w-full">
               <Tabs defaultValue="result" className="">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="result">Resultado</TabsTrigger>
                   <TabsTrigger value="params">Parâmetros</TabsTrigger>
+                  <TabsTrigger value="ia">IA</TabsTrigger>
                 </TabsList>
                 <TabsContent value="result">
                   <Editor
@@ -248,6 +256,62 @@ export default function QueryProcessor() {
                       </Table>
                     </CardContent>
                   </Card>
+                </TabsContent>
+                <TabsContent value="ia">
+                  {/* add a mocked template to an response from the ia about what the sql do with an avatar of the ia as an user*/}
+                  <ScrollArea className="h-[30vh] mt-4 pr-3">
+                    <div className="flex gap-2">
+                      <Avatar>
+                        <AvatarFallback>IA</AvatarFallback>
+                      </Avatar>
+                      <p className="text-sm">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Delectus velit alias ad accusamus quia. Quaerat
+                        eaque iste soluta aliquam voluptate consequuntur totam
+                        porro, cumque debitis. Possimus quo aliquam illum
+                        eligendi? Laudantium nihil perspiciatis necessitatibus
+                        labore laborum inventore sunt esse numquam iusto
+                        voluptatibus amet corrupti quisquam, velit nisi, libero
+                        at expedita. Voluptatibus amet nisi officiis,
+                        exercitationem aperiam sint illo possimus ut? Eveniet
+                        delectus repellat facilis animi. Quisquam minus tempore
+                        placeat laborum nisi doloribus modi sed illum
+                        necessitatibus optio consectetur quidem consequuntur
+                        nesciunt quas totam, quae, sit mollitia. Sit magni
+                        assumenda temporibus. Culpa, quos quis ipsum quaerat
+                        libero sapiente recusandae porro incidunt nobis ad modi.
+                        A, soluta hic eius enim in amet nesciunt officia
+                        laudantium placeat natus, eaque sunt ipsa, porro nulla.
+                        Aliquid autem consequatur nam? Deserunt sint itaque cum
+                        officiis rem beatae voluptates ullam, amet quis
+                        quibusdam nam voluptas temporibus eum omnis facere
+                        consectetur maxime numquam tempora reprehenderit modi
+                        molestias doloremque. Possimus ullam delectus
+                        consectetur voluptatem incidunt dolores similique velit
+                        est aperiam debitis, laboriosam, odio enim adipisci
+                        iusto? Numquam officiis facilis ea unde officia labore
+                        eveniet hic? Eos repellat libero esse? Ipsum, asperiores
+                        ab? Magnam molestiae esse numquam blanditiis possimus
+                        quam incidunt cum reprehenderit magni tenetur,
+                        distinctio omnis consectetur perspiciatis optio quo ut
+                        maiores beatae error quaerat repellat. Molestiae, neque
+                        hic? Unde molestiae hic ut enim ducimus earum sed
+                        reiciendis illum dicta distinctio voluptatum est
+                        temporibus, eveniet autem mollitia porro error voluptate
+                        quas odio voluptas laudantium molestias recusandae! Eum,
+                        aperiam tempora. Quod, hic suscipit, ex ducimus
+                        assumenda porro veniam vitae repellendus blanditiis
+                        eaque provident optio maiores consequatur facilis amet
+                        fugiat officia enim! Suscipit doloribus consequuntur
+                        explicabo praesentium quis earum optio quia! Ab
+                        voluptates maiores eaque hic eos facilis odit quis
+                        itaque? Laborum delectus ipsum quaerat explicabo
+                        obcaecati voluptas eligendi dolore incidunt,
+                        perspiciatis assumenda ipsam temporibus at est, harum
+                        iste quidem distinctio!
+                      </p>
+                    </div>
+                  </ScrollArea>
                 </TabsContent>
               </Tabs>
             </div>
